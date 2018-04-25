@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace：命名空间，用于隔离sql -->
+<!-- 还有一个很重要的作用，使用动态代理开发DAO，1. namespace必须和Mapper接口类路径一致 -->
+<mapper namespace="com.ss.Dao.UserDao">
+
+	<!--resultMap标签：映射实体与表
+		type属性：实体类的全路径名
+		id属性:为实体与表的映射取一个任意的唯一的编号
+
+	<resultMap type="com.ss.pojo.Person" id="PersonMap">
+
+		<id column="id" property="uuid" />
+		<result column="person_id" property="p_personid" />
+		<result column="create_at" property="p_createTime" />
+		<result column="update_at" property="p_updateTime" />
+		<result column="name" property="p_Name" />
+		<result column="GRADUATION" property="p_graduation" />
+		<result column="senior" property="p_senior" />
+	</resultMap> -->
+	<!-- 更新学生 -->
+	<update id="updatePerson" parameterType="com.ss.pojo.Person">
+		update table1 set update_at=#{updateTime}, NAME=#{NAME},gender=#{gender},age=#{age},graduation=#{graduation},senior=#{senior}
+		where id=#{id}
+	</update>
+
+
+	<!--增加学生，并拿到新增信息的表主键信息。
+	新增数据，得到主键的外层写法没什么特别，跟普通的insert一样。只不过里面加了selectKey-->
+	<insert id="addPerson" parameterType="com.ss.pojo.Person" useGeneratedKeys="true">
+		<!--useGeneratedKeys="true"  keyProperty="uuid"
+		selectKey  会将 SELECT LAST_INSERT_ID()的结果放入到传入的model的主键里面，
+		keyProperty 对应的model中的主键的属性名，这里是 user 中的id，因为它跟数据库的主键对应
+		useGeneratedKeys="true"把新增加的主键赋值到自己定义的keyProperty（id）中,适用于自增ID
+		order AFTER 表示 SELECT LAST_INSERT_ID() 在insert执行之后执行,多用与自增主键，
+		BEFORE 表示 SELECT LAST_INSERT_ID() 在insert执行之前执行，这样的话就拿不到主键了，
+		这种适合那种主键不是自增的类型
+		resultType 主键类型 -->
+		<selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+			select last_insert_id()
+		</selectKey>
+
+
+		INSERT INTO table1(NAME,gender,age,graduation,senior,create_at)
+		VALUES(#{NAME},#{gender},#{age},#{graduation},#{senior},#{createTime}
+		);
+	</insert>
+
+	<!-- 根据ID查询学生deletePerson
+	如果参数不是一个实体的话，只是一个普通变量，例如:int,double,String
+	这里的#{中间的变量名可以随便写}，不过提倡就用方法的形参
+	-->
+
+	<select id="getPersonById" parameterType="com.ss.pojo.Person" resultType="com.ss.pojo.Person">
+		select * from table1 where id = #{id}
+	</select>
+
+
+	<!-- 查询所有学生
+	理论上resultType要写List<Student>
+	但这里只需书写List中的类型即可，即只需书写Person的全路径名
+	-->
+	<select id="getAll" resultType="com.ss.pojo.Person">
+		select * from table1
+	</select>
+
+
+	<!-- 删除学生 -->
+	<delete id="deletePerson" parameterType="java.lang.Integer">
+		delete from table1 where id = #{id}
+	</delete>
+
+
+	<select id="seleteCount" resultType="java.lang.Integer">
+		select count(*) from table1;
+	</select>
+
+</mapper>
+
+
+
+
